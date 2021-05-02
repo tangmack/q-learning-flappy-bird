@@ -54,18 +54,18 @@ class GameState:
         self.playerFlapAcc =  -9   # players speed on flapping
         self.playerFlapped = False # True when player flaps
 
-    def frame_step(self, input_actions):
+    def frame_step(self, input_action):
         pygame.event.pump()
 
         reward = 0.1
         terminal = False
 
-        if sum(input_actions) != 1:
-            raise ValueError('Multiple input actions!')
+        if input_action != 0 and input_action != 1:
+            raise ValueError('Wrong input action!')
 
-        # input_actions[0] == 1: do nothing
-        # input_actions[1] == 1: flap the bird
-        if input_actions[1] == 1:
+        # input_action == 0: do nothing
+        # input_action == 1: flap the bird
+        if input_action == 1:
             if self.playery > -2 * PLAYER_HEIGHT:
                 self.playerVelY = self.playerFlapAcc
                 self.playerFlapped = True
