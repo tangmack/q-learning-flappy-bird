@@ -4,7 +4,7 @@ import flappy_bird_utils
 from pygame.locals import *
 from itertools import cycle
 
-FPS = 30
+FPS = 16000
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 
@@ -54,7 +54,7 @@ class GameState:
         self.playerFlapAcc =  -9   # players speed on flapping
         self.playerFlapped = False # True when player flaps
 
-    def frame_step(self, input_action):
+    def frame_step(self, input_action, headless):
         pygame.event.pump()
 
         reward = 0.1
@@ -122,24 +122,30 @@ class GameState:
             self.__init__()
             reward = -1
 
-        # draw sprites
-        SCREEN.blit(IMAGES['background'], (0,0))
+        if headless: # do not render if in headless mode
+            FPSCLOCK.tick(FPS)
+            ######print self.upperPipes[0]['y'] + PIPE_HEIGHT - int(BASEY * 0.2)
+            return 0, reward, terminal
 
-        for uPipe, lPipe in zip(self.upperPipes, self.lowerPipes):
-            SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
-            SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
+        else: # else not in headless mode, render
+            # draw sprites
+            SCREEN.blit(IMAGES['background'], (0,0))
 
-        SCREEN.blit(IMAGES['base'], (self.basex, BASEY))
-        # print score so player overlaps the score
-        # showScore(self.score)
-        SCREEN.blit(IMAGES['player'][self.playerIndex],
-                    (self.playerx, self.playery))
+            for uPipe, lPipe in zip(self.upperPipes, self.lowerPipes):
+                SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
+                SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
-        image_data = pygame.surfarray.array3d(pygame.display.get_surface())
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
-        #print self.upperPipes[0]['y'] + PIPE_HEIGHT - int(BASEY * 0.2)
-        return image_data, reward, terminal
+            SCREEN.blit(IMAGES['base'], (self.basex, BASEY))
+            # print score so player overlaps the score
+            # showScore(self.score)
+            SCREEN.blit(IMAGES['player'][self.playerIndex],
+                        (self.playerx, self.playery))
+
+            image_data = pygame.surfarray.array3d(pygame.display.get_surface())
+            pygame.display.update()
+            FPSCLOCK.tick(FPS)
+            #print self.upperPipes[0]['y'] + PIPE_HEIGHT - int(BASEY * 0.2)
+            return image_data, reward, terminal
 
 def getRandomPipe():
     """returns a randomly generated pipe"""
