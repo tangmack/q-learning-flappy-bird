@@ -4,7 +4,7 @@ import flappy_bird_utils
 from pygame.locals import *
 from itertools import cycle
 
-FPS = 16000
+# FPS = 16000
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 
@@ -54,7 +54,7 @@ class GameState:
         self.playerFlapAcc =  -9   # players speed on flapping
         self.playerFlapped = False # True when player flaps
 
-    def frame_step(self, input_action, headless):
+    def frame_step(self, input_action, headless, desired_fps):
         pygame.event.pump()
 
         reward = 0.1
@@ -123,7 +123,7 @@ class GameState:
             reward = -1
 
         if headless: # do not render if in headless mode
-            FPSCLOCK.tick(FPS)
+            FPSCLOCK.tick(desired_fps)
             ######print self.upperPipes[0]['y'] + PIPE_HEIGHT - int(BASEY * 0.2)
             return 0, reward, terminal
 
@@ -143,7 +143,7 @@ class GameState:
 
             image_data = pygame.surfarray.array3d(pygame.display.get_surface())
             pygame.display.update()
-            FPSCLOCK.tick(FPS)
+            FPSCLOCK.tick(desired_fps)
             #print self.upperPipes[0]['y'] + PIPE_HEIGHT - int(BASEY * 0.2)
             return image_data, reward, terminal
 
