@@ -122,10 +122,20 @@ class GameState:
             self.__init__()
             reward = -1
 
+
+        # get distance to next pipe
+        x_dist_to_leftmost_pipe = self.upperPipes[0]['x']
+        y_dist_of_leftmost_pipe = self.lowerPipes[0]['y']
+        delta_x_bird_and_pipe = (self.upperPipes[0]['x'] + PIPE_WIDTH / 2) - self.playerx
+        delta_y_bird_and_pipe = y_dist_of_leftmost_pipe-49 - (self.playery - PLAYER_HEIGHT / 2. ) # 126/2=63, -28/2=49
+        # delta_y_bird_and_pipe = y_dist_of_leftmost_pipe
+
+        state_out = (delta_x_bird_and_pipe, delta_y_bird_and_pipe)
+
         if headless: # do not render if in headless mode
             FPSCLOCK.tick(desired_fps)
             ######print self.upperPipes[0]['y'] + PIPE_HEIGHT - int(BASEY * 0.2)
-            return 0, reward, terminal
+            return state_out, reward, terminal
 
         else: # else not in headless mode, render
             # draw sprites
@@ -144,8 +154,9 @@ class GameState:
             image_data = pygame.surfarray.array3d(pygame.display.get_surface())
             pygame.display.update()
             FPSCLOCK.tick(desired_fps)
-            #print self.upperPipes[0]['y'] + PIPE_HEIGHT - int(BASEY * 0.2)
-            return image_data, reward, terminal
+            ######print self.upperPipes[0]['y'] + PIPE_HEIGHT - int(BASEY * 0.2)
+            # return image_data, reward, terminal
+            return state_out, reward, terminal
 
 def getRandomPipe():
     """returns a randomly generated pipe"""
