@@ -127,6 +127,7 @@ class GameState:
         x_dist_to_leftmost_pipe = self.upperPipes[0]['x']
         y_dist_of_leftmost_pipe = self.lowerPipes[0]['y']
         delta_x_bird_and_pipe = (self.upperPipes[0]['x'] + PIPE_WIDTH / 2) - self.playerx
+        # delta_x_bird_and_pipe = self.upperPipes[0]['x']
         delta_y_bird_and_pipe = y_dist_of_leftmost_pipe-49 - (self.playery - PLAYER_HEIGHT / 2. ) # 126/2=63, -28/2=49
         # delta_y_bird_and_pipe = y_dist_of_leftmost_pipe
 
