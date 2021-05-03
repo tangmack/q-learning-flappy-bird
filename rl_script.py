@@ -6,7 +6,7 @@ t0 = time.time()
 
 ALPHA = .1 # learning rate
 GAMMA = 0.95 # discount factor
-EPISODES = 5000
+EPISODES = 20000
 SHOW_EVERY = 100000
 
 # Exploration settings
