@@ -57,7 +57,7 @@ class GameState:
     def frame_step(self, input_action, headless, desired_fps):
         pygame.event.pump()
 
-        reward = .1
+        reward = 0
         terminal = False
 
         if input_action != 0 and input_action != 1:
@@ -78,7 +78,7 @@ class GameState:
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 self.score += 1
                 #SOUNDS['point'].play()
-                reward = 1
+                reward = 0
 
         # playerIndex basex change
         if (self.loopIter + 1) % 3 == 0:
@@ -120,7 +120,7 @@ class GameState:
             #SOUNDS['die'].play()
             terminal = True
             self.__init__()
-            reward = -1
+            reward = -1000
 
 
         # get distance to next pipe

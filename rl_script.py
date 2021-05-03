@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 import time
 t0 = time.time()
 
-ALPHA = .1 # learning rate
+ALPHA = .7 # learning rate
 GAMMA = 0.95 # discount factor
-EPISODES = 20000
-SHOW_EVERY = 100000
+EPISODES = 100000
+SHOW_EVERY = 20000
 
 # Exploration settings
 epsilon = 1  # not a constant, qoing to be decayed
@@ -17,14 +17,15 @@ epsilon_decay_value = epsilon/(END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
 FLAP_EVERY = 17
 
-bin_count = [20, 20] # [20, 20]
-env_state_high = np.array([260, 250])
-env_state_low = np.array([-60, -250])
+bin_count = [10, 20] # [20, 20]
+env_state_high = np.array([250, 234])
+env_state_low = np.array([30, -217])
 env_number_of_actions = 2
 # bin_size = ([234 - -60, 200 - -200 ]) / bin_count
 bin_size = (env_state_high - env_state_low) / bin_count
 
-q_table = np.random.uniform(low= -0.2, high=0.2, size=(bin_count[0],bin_count[1],2))
+# q_table = np.random.uniform(low= -0.2, high=0.2, size=(bin_count[0],bin_count[1],2))
+q_table = np.random.uniform(low= 0.0, high=0.0, size=(bin_count[0],bin_count[1],2))
 
 def discretize_state(state):
     # print(state)
@@ -34,6 +35,8 @@ def discretize_state(state):
     return tuple(discrete_state.astype(int))
 
 frames_survived = []
+env_max_measured_values = [-999, -999]
+env_min_measured_values = [999, 999]
 best_frames_survived = 0
 for episode in range(EPISODES):
     game_state = game.GameState()
@@ -44,11 +47,15 @@ for episode in range(EPISODES):
     state, reward, done = game_state.frame_step(action, headless=True, desired_fps=16000)
     # print("starting state: ", state)
 
+    action = 0 # first action will always be nothing
+    state, reward, done = game_state.frame_step(action, headless=True, desired_fps=16000)
+    # print("starting state: ", state)
+
     discrete_state = discretize_state(state)
     for frame in range(max_frames):
 
         try:
-            action = np.argmax(q_table[discrete_state])
+            # action = np.argmax(q_table[discrete_state])
 
             if np.random.random() > epsilon:
                 # Get action from Q table
@@ -74,10 +81,23 @@ for episode in range(EPISODES):
         else:
             new_state, reward, done = game_state.frame_step(action, headless=True, desired_fps=16000)
 
-        new_discrete_state = discretize_state(new_state)
+        # if new_state[0] == 257.0:
+        #     pass
+        #     print("stop")
+
 
         total_frames += 1
         if not done:
+            if new_state[0] < env_min_measured_values[0]:
+                env_min_measured_values[0] = new_state[0]
+            if new_state[1] < env_min_measured_values[1]:
+                env_min_measured_values[1] = new_state[1]
+            if new_state[0] > env_max_measured_values[0]:
+                env_max_measured_values[0] = new_state[0]
+            if new_state[1] > env_max_measured_values[1]:
+                env_max_measured_values[1] = new_state[1]
+
+            new_discrete_state = discretize_state(new_state)
             max_future_q = np.max(q_table[discrete_state])
             current_q = q_table[discrete_state][action]
             new_q = (1 - ALPHA) * current_q + ALPHA * (reward + GAMMA * max_future_q)
@@ -107,3 +127,7 @@ plt.show()
 print("min frames survived: ", min(frames_survived) )
 print("average frames survived: ", sum(frames_survived)/len(frames_survived) )
 print("max frames survived: ", max(frames_survived))
+
+print(" ")
+print("env_min_measured_values: ", env_min_measured_values)
+print("env_max_measured_values: ", env_max_measured_values)
