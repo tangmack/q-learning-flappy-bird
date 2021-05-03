@@ -125,11 +125,19 @@ class GameState:
 
         # get distance to next pipe
         x_dist_to_leftmost_pipe = self.upperPipes[0]['x']
-        y_dist_of_leftmost_pipe = self.lowerPipes[0]['y']
-        delta_x_bird_and_pipe = (self.upperPipes[0]['x'] + PIPE_WIDTH / 2) - self.playerx
-        # delta_x_bird_and_pipe = self.upperPipes[0]['x']
-        delta_y_bird_and_pipe = y_dist_of_leftmost_pipe-49 - (self.playery - PLAYER_HEIGHT / 2. ) # 126/2=63, -28/2=49
-        # delta_y_bird_and_pipe = y_dist_of_leftmost_pipe
+
+        if x_dist_to_leftmost_pipe > 57 - 0: # if bird not reached rightmost side
+            y_dist_of_leftmost_pipe = self.lowerPipes[0]['y']
+            delta_x_bird_and_pipe = (x_dist_to_leftmost_pipe + PIPE_WIDTH / 2) - self.playerx # self.upperPipes[0]['x'] is at rightmost side of pipes
+            # delta_x_bird_and_pipe = self.upperPipes[0]['x']
+            delta_y_bird_and_pipe = y_dist_of_leftmost_pipe-49 - (self.playery - PLAYER_HEIGHT / 2. ) # 126/2=63, -28/2=49
+            # delta_y_bird_and_pipe = y_dist_of_leftmost_pipe
+        elif x_dist_to_leftmost_pipe <= 57 - 0: # if bird has reached rightmost side of current pipe
+            x_dist_to_leftmost_pipe = self.upperPipes[1]['x']
+            y_dist_of_leftmost_pipe = self.lowerPipes[1]['y']
+            delta_x_bird_and_pipe = (x_dist_to_leftmost_pipe + PIPE_WIDTH / 2) - self.playerx # self.upperPipes[0]['x'] is at rightmost side of pipes
+            delta_y_bird_and_pipe = y_dist_of_leftmost_pipe-49 - (self.playery - PLAYER_HEIGHT / 2. ) # 126/2=63, -28/2=49
+
 
         state_out = (delta_x_bird_and_pipe, delta_y_bird_and_pipe)
 

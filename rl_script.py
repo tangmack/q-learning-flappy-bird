@@ -6,17 +6,17 @@ t0 = time.time()
 ALPHA = .1 # learning rate
 GAMMA = 0.95 # discount factor
 EPISODES = 20000
-SHOW_EVERY = 1
+SHOW_EVERY = 200
 
 FLAP_EVERY = 17
 
-bin_count = [20, 20] # [20, 20]
+bin_count = [100, 100] # [20, 20]
 env_state_high = np.array([260, 250])
 env_state_low = np.array([-60, -250])
 # bin_size = ([234 - -60, 200 - -200 ]) / bin_count
 bin_size = (env_state_high - env_state_low) / bin_count
 
-q_table = np.random.uniform(low= -0.2, high=0.0, size=(bin_count[0],bin_count[1],2))
+q_table = np.random.uniform(low= -0.1, high=0.1, size=(bin_count[0],bin_count[1],2))
 
 def discretize_state(state):
     # print(state)
@@ -39,15 +39,15 @@ for episode in range(EPISODES):
     for frame in range(max_frames):
 
         try:
-            # action = np.argmax(q_table[discrete_state])
-            if frame % FLAP_EVERY == 0: action = 1
-            else: action = 0
+            action = np.argmax(q_table[discrete_state])
+            # if frame % FLAP_EVERY == 0: action = 1
+            # else: action = 0
         except:
             print(state)
         # new_state, reward, done = game_state.frame_step(action, headless=False, desired_fps=10)
         if episode % SHOW_EVERY == 0:
-            new_state, reward, done = game_state.frame_step(action, headless=False, desired_fps=5)
-            print(new_state)
+            new_state, reward, done = game_state.frame_step(action, headless=False, desired_fps=30)
+            print(new_state, action)
         else:
             new_state, reward, done = game_state.frame_step(action, headless=True, desired_fps=16000)
 
