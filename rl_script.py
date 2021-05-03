@@ -8,11 +8,18 @@ GAMMA = 0.95 # discount factor
 EPISODES = 20000
 SHOW_EVERY = 200
 
+# Exploration settings
+epsilon = 1  # not a constant, qoing to be decayed
+START_EPSILON_DECAYING = 1
+END_EPSILON_DECAYING = EPISODES//2
+epsilon_decay_value = epsilon/(END_EPSILON_DECAYING - START_EPSILON_DECAYING)
+
 FLAP_EVERY = 17
 
 bin_count = [100, 100] # [20, 20]
 env_state_high = np.array([260, 250])
 env_state_low = np.array([-60, -250])
+env_number_of_actions = 2
 # bin_size = ([234 - -60, 200 - -200 ]) / bin_count
 bin_size = (env_state_high - env_state_low) / bin_count
 
@@ -39,7 +46,19 @@ for episode in range(EPISODES):
     for frame in range(max_frames):
 
         try:
-            action = np.argmax(q_table[discrete_state])
+            if np.random.random() > epsilon:
+                # Get action from Q table
+                action = np.argmax(q_table[discrete_state])
+            else:
+                # Get random action
+                roll = np.random.uniform(low=0.0, high=1.0)
+                if roll < 0.90: # do random action, with emphasis on doing nothing
+                    action = 0
+                else:
+                    action = 1
+
+            # action = np.argmax(q_table[discrete_state])
+
             # if frame % FLAP_EVERY == 0: action = 1
             # else: action = 0
         except:
@@ -66,6 +85,10 @@ for episode in range(EPISODES):
             break
 
         discrete_state = new_discrete_state
+
+    # Decaying is being done every episode if episode number is within decaying range
+    if END_EPSILON_DECAYING >= episode >= START_EPSILON_DECAYING:
+        epsilon -= epsilon_decay_value
 
 print("best_frames_survived: ", best_frames_survived)
 t1 = time.time()
