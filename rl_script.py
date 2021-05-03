@@ -6,7 +6,9 @@ t0 = time.time()
 ALPHA = .1 # learning rate
 GAMMA = 0.95 # discount factor
 EPISODES = 20000
-SHOW_EVERY = 2000
+SHOW_EVERY = 1
+
+FLAP_EVERY = 17
 
 bin_count = [20, 20] # [20, 20]
 env_state_high = np.array([260, 250])
@@ -35,15 +37,16 @@ for episode in range(EPISODES):
 
     discrete_state = discretize_state(state)
     for frame in range(max_frames):
-        # action = 1 # 0 for no action, 1 for flap
 
         try:
-            action = np.argmax(q_table[discrete_state])
+            # action = np.argmax(q_table[discrete_state])
+            if frame % FLAP_EVERY == 0: action = 1
+            else: action = 0
         except:
             print(state)
         # new_state, reward, done = game_state.frame_step(action, headless=False, desired_fps=10)
         if episode % SHOW_EVERY == 0:
-            new_state, reward, done = game_state.frame_step(action, headless=False, desired_fps=30)
+            new_state, reward, done = game_state.frame_step(action, headless=False, desired_fps=5)
             print(new_state)
         else:
             new_state, reward, done = game_state.frame_step(action, headless=True, desired_fps=16000)
