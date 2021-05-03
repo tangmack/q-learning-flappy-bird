@@ -9,8 +9,11 @@ t0 = time.time()
 ALPHA = .7 # learning rate
 GAMMA = 0.95 # discount factor
 # EPISODES = 40000
-EPISODES = 80000
-SHOW_EVERY = 10000
+# EPISODES = 1000 # best survived freames 434
+EPISODES = 160_000
+# EPISODES = 260_000
+SHOW_EVERY = 20000
+# SHOW_EVERY = 1
 
 # Exploration settings
 epsilon = 1  # not a constant, qoing to be decayed
@@ -20,19 +23,21 @@ epsilon_decay_value = epsilon/(END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
 FLAP_EVERY = 17
 
-bin_count = [20, 40, 40, 10] # [20, 20]
-env_state_high = np.array([250, 234, 380, 11])
-env_state_low = np.array([30, -217, 0, -9])
+bin_count = [20, 40, 40, 40, 10] # [20, 20]
+env_state_high = np.array([250, 234, 234, 380, 11])
+env_state_low = np.array([30, -217, -217, 0, -9])
 env_number_of_actions = 2
 # bin_size = ([234 - -60, 200 - -200 ]) / bin_count
 bin_size = (env_state_high - env_state_low) / bin_count
 
 # q_table = np.random.uniform(low= -0.2, high=0.2, size=(bin_count[0],bin_count[1],2))
 # q_table = np.random.uniform(low= -0.1, high=0.0, size=(bin_count + [env_number_of_actions]))
+
 q_table = np.random.uniform(low= -0.2, high=0.0, size=(bin_count + [env_number_of_actions]))
+
 # q_table[:,:,1] = np.random.uniform(low=-.5, high=0.0, size=(bin_count[0],bin_count[1])) # de-emphasize flap (avoid hitting ceiling)
 
-# q_table = np.load(f"qtables/{157}-qtable.npy")
+q_table = np.load(f"qtables/{320}-qtable.npy")
 
 def discretize_state(state):
     # print(state)
@@ -42,8 +47,8 @@ def discretize_state(state):
     return tuple(discrete_state.astype(int))
 
 frames_survived = []
-env_max_measured_values = [-999, -999, -999, -999]
-env_min_measured_values = [999, 999, 999, 999]
+env_max_measured_values = [-999, -999, -999, -999, -999]
+env_min_measured_values = [999, 999, 999, 999, 999]
 best_frames_survived = 0
 for episode in range(EPISODES):
     game_state = game.GameState()
@@ -62,18 +67,18 @@ for episode in range(EPISODES):
     for frame in range(max_frames):
 
         try:
-            # action = np.argmax(q_table[discrete_state])
+            action = np.argmax(q_table[discrete_state])
 
-            if np.random.random() > epsilon:
-                # Get action from Q table
-                action = np.argmax(q_table[discrete_state])
-            else:
-                # Get random action
-                roll = np.random.uniform(low=0.0, high=1.0)
-                if roll < 0.80: # do random action, with emphasis on doing nothing
-                    action = 0
-                else:
-                    action = 1
+            # if np.random.random() > epsilon:
+            #     # Get action from Q table
+            #     action = np.argmax(q_table[discrete_state])
+            # else:
+            #     # Get random action
+            #     roll = np.random.uniform(low=0.0, high=1.0)
+            #     if roll < 0.80: # do random action, with emphasis on doing nothing
+            #         action = 0
+            #     else:
+            #         action = 1
 
             # action = np.argmax(q_table[discrete_state])
 
@@ -143,7 +148,7 @@ print("best_frames_survived: ", best_frames_survived)
 t1 = time.time()
 print("total time: ", t1-t0) # 9.764827251434326, 20,000 episodes, completely headless, 16000 FPS
 
-plt.plot(frames_survived)
+plt.plot(frames_survived, linestyle='', marker='.')
 plt.show()
 
 print("min frames survived: ", min(frames_survived) )
