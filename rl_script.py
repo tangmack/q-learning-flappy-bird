@@ -2,12 +2,14 @@ import wrapped_flappy_bird as game
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import os
+import glob
 t0 = time.time()
 
 ALPHA = .7 # learning rate
 GAMMA = 0.95 # discount factor
-EPISODES = 20000
-SHOW_EVERY = 20000
+EPISODES = 40000
+SHOW_EVERY = 10000
 
 # Exploration settings
 epsilon = 1  # not a constant, qoing to be decayed
@@ -17,16 +19,19 @@ epsilon_decay_value = epsilon/(END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
 FLAP_EVERY = 17
 
-bin_count = [20, 40, 40, 100] # [20, 20]
-env_state_high = np.array([250, 234, 234, 200])
-env_state_low = np.array([30, -217, -217, -200])
+bin_count = [20, 40, 40, 10] # [20, 20]
+env_state_high = np.array([250, 234, 234, 11])
+env_state_low = np.array([30, -217, -217, -9])
 env_number_of_actions = 2
 # bin_size = ([234 - -60, 200 - -200 ]) / bin_count
 bin_size = (env_state_high - env_state_low) / bin_count
 
 # q_table = np.random.uniform(low= -0.2, high=0.2, size=(bin_count[0],bin_count[1],2))
-q_table = np.random.uniform(low= -0.1, high=0.0, size=(bin_count + [env_number_of_actions]))
+# q_table = np.random.uniform(low= -0.1, high=0.0, size=(bin_count + [env_number_of_actions]))
+q_table = np.random.uniform(low= -0.2, high=0.0, size=(bin_count + [env_number_of_actions]))
 # q_table[:,:,1] = np.random.uniform(low=-.5, high=0.0, size=(bin_count[0],bin_count[1])) # de-emphasize flap (avoid hitting ceiling)
+
+# q_table = np.load(f"qtables/{157}-qtable.npy")
 
 def discretize_state(state):
     # print(state)
@@ -108,14 +113,20 @@ for episode in range(EPISODES):
                 env_max_measured_values[3] = new_state[3]
 
             new_discrete_state = discretize_state(new_state)
-            max_future_q = np.max(q_table[discrete_state])
+            # max_future_q = np.max(q_table[discrete_state]) # big mistake
+            max_future_q = np.max(q_table[new_discrete_state])
             current_q = q_table[discrete_state][action]
             new_q = (1 - ALPHA) * current_q + ALPHA * (reward + GAMMA * max_future_q)
             q_table[discrete_state][action] = new_q
         elif done:
+
+            new_q = (1 - ALPHA) * current_q + ALPHA * (reward)
+            q_table[discrete_state][action] = new_q
+
             print("Total Frames ", str(total_frames), " for episode ", episode)
             if total_frames > best_frames_survived:
                 best_frames_survived = total_frames
+                np.save(f"qtables/{total_frames}-qtable.npy", q_table)
             break
 
         discrete_state = new_discrete_state
