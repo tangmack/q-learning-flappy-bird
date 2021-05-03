@@ -6,7 +6,7 @@ t0 = time.time()
 
 ALPHA = .7 # learning rate
 GAMMA = 0.95 # discount factor
-EPISODES = 100000
+EPISODES = 20000
 SHOW_EVERY = 20000
 
 # Exploration settings
@@ -17,15 +17,16 @@ epsilon_decay_value = epsilon/(END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
 FLAP_EVERY = 17
 
-bin_count = [10, 20] # [20, 20]
-env_state_high = np.array([250, 234])
-env_state_low = np.array([30, -217])
+bin_count = [20, 40, 40, 100] # [20, 20]
+env_state_high = np.array([250, 234, 234, 200])
+env_state_low = np.array([30, -217, -217, -200])
 env_number_of_actions = 2
 # bin_size = ([234 - -60, 200 - -200 ]) / bin_count
 bin_size = (env_state_high - env_state_low) / bin_count
 
 # q_table = np.random.uniform(low= -0.2, high=0.2, size=(bin_count[0],bin_count[1],2))
-q_table = np.random.uniform(low= 0.0, high=0.0, size=(bin_count[0],bin_count[1],2))
+q_table = np.random.uniform(low= -0.1, high=0.0, size=(bin_count + [env_number_of_actions]))
+# q_table[:,:,1] = np.random.uniform(low=-.5, high=0.0, size=(bin_count[0],bin_count[1])) # de-emphasize flap (avoid hitting ceiling)
 
 def discretize_state(state):
     # print(state)
@@ -35,8 +36,8 @@ def discretize_state(state):
     return tuple(discrete_state.astype(int))
 
 frames_survived = []
-env_max_measured_values = [-999, -999]
-env_min_measured_values = [999, 999]
+env_max_measured_values = [-999, -999, -999, -999]
+env_min_measured_values = [999, 999, 999, 999]
 best_frames_survived = 0
 for episode in range(EPISODES):
     game_state = game.GameState()
@@ -92,10 +93,19 @@ for episode in range(EPISODES):
                 env_min_measured_values[0] = new_state[0]
             if new_state[1] < env_min_measured_values[1]:
                 env_min_measured_values[1] = new_state[1]
+            if new_state[2] < env_min_measured_values[2]:
+                env_min_measured_values[2] = new_state[2]
+            if new_state[3] < env_min_measured_values[3]:
+                env_min_measured_values[3] = new_state[3]
+
             if new_state[0] > env_max_measured_values[0]:
                 env_max_measured_values[0] = new_state[0]
             if new_state[1] > env_max_measured_values[1]:
                 env_max_measured_values[1] = new_state[1]
+            if new_state[2] > env_max_measured_values[2]:
+                env_max_measured_values[2] = new_state[2]
+            if new_state[3] > env_max_measured_values[3]:
+                env_max_measured_values[3] = new_state[3]
 
             new_discrete_state = discretize_state(new_state)
             max_future_q = np.max(q_table[discrete_state])

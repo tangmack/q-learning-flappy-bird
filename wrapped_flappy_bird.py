@@ -132,14 +132,21 @@ class GameState:
             # delta_x_bird_and_pipe = self.upperPipes[0]['x']
             delta_y_bird_and_pipe = y_dist_of_leftmost_pipe-49 - (self.playery - PLAYER_HEIGHT / 2. ) # 126/2=63, -28/2=49
             # delta_y_bird_and_pipe = y_dist_of_leftmost_pipe
+
+            delta_y_next_pipe = self.lowerPipes[1]['y'] - 49 - (self.playery - PLAYER_HEIGHT / 2. )
+
         elif x_dist_to_leftmost_pipe <= 57 - 0: # if bird has reached rightmost side of current pipe
             x_dist_to_leftmost_pipe = self.upperPipes[1]['x']
             y_dist_of_leftmost_pipe = self.lowerPipes[1]['y']
             delta_x_bird_and_pipe = (x_dist_to_leftmost_pipe + PIPE_WIDTH / 2) - self.playerx # self.upperPipes[0]['x'] is at rightmost side of pipes
             delta_y_bird_and_pipe = y_dist_of_leftmost_pipe-49 - (self.playery - PLAYER_HEIGHT / 2. ) # 126/2=63, -28/2=49
 
+            if len(pipe) > 2:
+                delta_y_next_pipe = self.lowerPipes[2]['y'] - 49 - (self.playery - PLAYER_HEIGHT / 2. )
+            else:
+                delta_y_next_pipe = self.lowerPipes[1]['y'] - 49 - (self.playery - PLAYER_HEIGHT / 2.)
 
-        state_out = (delta_x_bird_and_pipe, delta_y_bird_and_pipe)
+        state_out = (delta_x_bird_and_pipe, delta_y_bird_and_pipe, delta_y_next_pipe, self.playerVelY)
 
         if headless: # do not render if in headless mode
             FPSCLOCK.tick(desired_fps)
