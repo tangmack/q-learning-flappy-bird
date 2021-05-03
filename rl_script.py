@@ -8,7 +8,8 @@ t0 = time.time()
 
 ALPHA = .7 # learning rate
 GAMMA = 0.95 # discount factor
-EPISODES = 40000
+# EPISODES = 40000
+EPISODES = 80000
 SHOW_EVERY = 10000
 
 # Exploration settings
@@ -20,8 +21,8 @@ epsilon_decay_value = epsilon/(END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 FLAP_EVERY = 17
 
 bin_count = [20, 40, 40, 10] # [20, 20]
-env_state_high = np.array([250, 234, 234, 11])
-env_state_low = np.array([30, -217, -217, -9])
+env_state_high = np.array([250, 234, 380, 11])
+env_state_low = np.array([30, -217, 0, -9])
 env_number_of_actions = 2
 # bin_size = ([234 - -60, 200 - -200 ]) / bin_count
 bin_size = (env_state_high - env_state_low) / bin_count

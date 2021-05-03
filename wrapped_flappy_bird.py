@@ -31,6 +31,7 @@ class GameState:
         self.score = self.playerIndex = self.loopIter = 0
         self.playerx = int(SCREENWIDTH * 0.2)
         self.playery = int((SCREENHEIGHT - PLAYER_HEIGHT) / 2)
+
         self.basex = 0
         self.baseShift = IMAGES['base'].get_width() - BACKGROUND_WIDTH
 
@@ -146,7 +147,8 @@ class GameState:
             else:
                 delta_y_next_pipe = self.lowerPipes[1]['y'] - 49 - (self.playery - PLAYER_HEIGHT / 2.)
 
-        state_out = (delta_x_bird_and_pipe, delta_y_bird_and_pipe, delta_y_next_pipe, self.playerVelY)
+        # state_out = (delta_x_bird_and_pipe, delta_y_bird_and_pipe, delta_y_next_pipe, self.playerVelY)
+        state_out = (delta_x_bird_and_pipe, delta_y_bird_and_pipe, self.playery, self.playerVelY)
 
         if headless: # do not render if in headless mode
             FPSCLOCK.tick(desired_fps)
