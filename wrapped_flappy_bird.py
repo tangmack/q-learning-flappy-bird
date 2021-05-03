@@ -57,7 +57,7 @@ class GameState:
     def frame_step(self, input_action, headless, desired_fps):
         pygame.event.pump()
 
-        reward = 0.1
+        reward = .1
         terminal = False
 
         if input_action != 0 and input_action != 1:
