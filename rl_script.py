@@ -146,17 +146,32 @@ for episode in range(EPISODES):
                 action_ = state_action_new_state[1]
                 new_discrete_state_ = state_action_new_state[2]
 
-                if last_flap_dealt_with == False and upper_pipe_death == True and action_ == 1: # deal with last flap if we haven't before and action_ = 1 = flap
-                    max_future_q = np.max(q_table[new_discrete_state_])
-                    current_q = q_table[discrete_state_][action_]
-                    new_q = (1 - ALPHA) * current_q + ALPHA * (-1000 + GAMMA * max_future_q) # -1000 reward
-                    q_table[discrete_state_][action_] = new_q
-                    last_flap_dealt_with = True
-                else: # else, normal case, just give +1 reward
-                    max_future_q = np.max(q_table[new_discrete_state_])
-                    current_q = q_table[discrete_state_][action_]
-                    new_q = (1 - ALPHA) * current_q + ALPHA * (1 + GAMMA * max_future_q) # +1 reward
-                    q_table[discrete_state_][action_] = new_q
+
+                # idea behind this: if there was an upper pipe death, it was ACTION that caused that, versus no action, if lower pipe death
+                if upper_pipe_death == True:
+                    if last_flap_dealt_with == False and upper_pipe_death == True and action_ == 1: # deal with last flap if we haven't before and action = 1 = flap and we had upper_pipe_death
+                        max_future_q = np.max(q_table[new_discrete_state_])
+                        current_q = q_table[discrete_state_][action_]
+                        new_q = (1 - ALPHA) * current_q + ALPHA * (-1000 + GAMMA * max_future_q) # -1000 reward
+                        q_table[discrete_state_][action_] = new_q
+                        last_flap_dealt_with = True
+                    else: # else, normal case, just give +1 reward
+                        max_future_q = np.max(q_table[new_discrete_state_])
+                        current_q = q_table[discrete_state_][action_]
+                        new_q = (1 - ALPHA) * current_q + ALPHA * (1 + GAMMA * max_future_q) # +1 reward
+                        q_table[discrete_state_][action_] = new_q
+
+                else: # else it was a lower pipe death, or floor death
+                    if idx == 0 or idx == 1: # we don't want to be anywhere near the lower pipes or floor, so punish last two states, even if they are innocent (we shouldn't be anywhere near down there, anyway)
+                        max_future_q = np.max(q_table[new_discrete_state_])
+                        current_q = q_table[discrete_state_][action_]
+                        new_q = (1 - ALPHA) * current_q + ALPHA * (-1000 + GAMMA * max_future_q) # -1000 reward
+                        q_table[discrete_state_][action_] = new_q
+                    else: # else those states were not responsible
+                        max_future_q = np.max(q_table[new_discrete_state_])
+                        current_q = q_table[discrete_state_][action_]
+                        new_q = (1 - ALPHA) * current_q + ALPHA * (1 + GAMMA * max_future_q) # +1 reward
+                        q_table[discrete_state_][action_] = new_q
 
             episode_state_action_new_states = [] # empty out saved states action state tuples
 
