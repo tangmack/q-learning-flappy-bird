@@ -10,9 +10,10 @@ ALPHA = .7 # learning rate
 GAMMA = 0.95 # discount factor
 # EPISODES = 40000
 # EPISODES = 1000 # best survived freames 434
-EPISODES = 160_000
+EPISODES = 13000
 # EPISODES = 260_000
-SHOW_EVERY = 20000
+# SHOW_EVERY = 20000
+SHOW_EVERY = 1000
 # SHOW_EVERY = 1
 
 # Exploration settings
@@ -37,7 +38,7 @@ q_table = np.random.uniform(low= -0.2, high=0.0, size=(bin_count + [env_number_o
 
 # q_table[:,:,1] = np.random.uniform(low=-.5, high=0.0, size=(bin_count[0],bin_count[1])) # de-emphasize flap (avoid hitting ceiling)
 
-q_table = np.load(f"qtables/{320}-qtable.npy")
+# q_table = np.load(f"qtables/{320}-qtable.npy")
 
 def discretize_state(state):
     # print(state)
@@ -46,6 +47,7 @@ def discretize_state(state):
     # print(discrete_state)
     return tuple(discrete_state.astype(int))
 
+episode_state_action_new_states = []
 frames_survived = []
 env_max_measured_values = [-999, -999, -999, -999, -999]
 env_min_measured_values = [999, 999, 999, 999, 999]
@@ -118,16 +120,45 @@ for episode in range(EPISODES):
             if new_state[3] > env_max_measured_values[3]:
                 env_max_measured_values[3] = new_state[3]
 
-            new_discrete_state = discretize_state(new_state)
-            # max_future_q = np.max(q_table[discrete_state]) # big mistake
-            max_future_q = np.max(q_table[new_discrete_state])
-            current_q = q_table[discrete_state][action]
-            new_q = (1 - ALPHA) * current_q + ALPHA * (reward + GAMMA * max_future_q)
-            q_table[discrete_state][action] = new_q
-        elif done:
 
-            new_q = (1 - ALPHA) * current_q + ALPHA * (reward)
-            q_table[discrete_state][action] = new_q
+            new_discrete_state = discretize_state(new_state)
+
+            episode_state_action_new_states.append((discrete_state, action, new_discrete_state))
+
+            # # max_future_q = np.max(q_table[discrete_state]) # big mistake
+            # max_future_q = np.max(q_table[new_discrete_state])
+            # current_q = q_table[discrete_state][action]
+            # new_q = (1 - ALPHA) * current_q + ALPHA * (reward + GAMMA * max_future_q)
+            # q_table[discrete_state][action] = new_q
+        elif done:
+            # new_q = (1 - ALPHA) * current_q + ALPHA * (reward)
+            # q_table[discrete_state][action] = new_q
+
+            episode_state_action_new_states.reverse() # already not appending very very last faulty state (don't reach if not done above)
+            last_flap_dealt_with = False
+
+            if episode_state_action_new_states[0][0][1] > 0: upper_pipe_death = True
+            else: upper_pipe_death = False
+
+            # bird has died, update q values
+            for idx, state_action_new_state in enumerate(episode_state_action_new_states):
+                discrete_state_ = state_action_new_state[0]
+                action_ = state_action_new_state[1]
+                new_discrete_state_ = state_action_new_state[2]
+
+                if last_flap_dealt_with == False and upper_pipe_death == True and action_ == 1: # deal with last flap if we haven't before and action_ = 1 = flap
+                    max_future_q = np.max(q_table[new_discrete_state_])
+                    current_q = q_table[discrete_state_][action_]
+                    new_q = (1 - ALPHA) * current_q + ALPHA * (-1000 + GAMMA * max_future_q) # -1000 reward
+                    q_table[discrete_state_][action_] = new_q
+                    last_flap_dealt_with = True
+                else: # else, normal case, just give +1 reward
+                    max_future_q = np.max(q_table[new_discrete_state_])
+                    current_q = q_table[discrete_state_][action_]
+                    new_q = (1 - ALPHA) * current_q + ALPHA * (1 + GAMMA * max_future_q) # +1 reward
+                    q_table[discrete_state_][action_] = new_q
+
+            episode_state_action_new_states = [] # empty out saved states action state tuples
 
             print("Total Frames ", str(total_frames), " for episode ", episode)
             if total_frames > best_frames_survived:
