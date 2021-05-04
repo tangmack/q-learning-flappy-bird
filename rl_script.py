@@ -8,16 +8,12 @@ t0 = time.time()
 
 ALPHA = .7 # learning rate
 GAMMA = 0.95 # discount factor
-# EPISODES = 40000
-# EPISODES = 1000 # best survived frames 434
-# EPISODES = 13000
 EPISODES = 100_000
-# EPISODES = 10000
-# EPISODES = 260_000
-# SHOW_EVERY = 20000
 SHOW_EVERY = 20_000
-# SHOW_EVERY = 10000
 # SHOW_EVERY = 1
+
+# AFTER = 80_000
+AFTER = 0
 
 # Exploration settings
 epsilon = 1  # not a constant, qoing to be decayed
@@ -41,7 +37,7 @@ q_table = np.random.uniform(low= -0.2, high=0.0, size=(bin_count + [env_number_o
 
 # q_table[:,:,1] = np.random.uniform(low=-.5, high=0.0, size=(bin_count[0],bin_count[1])) # de-emphasize flap (avoid hitting ceiling)
 
-# q_table = np.load(f"qtables/{320}-qtable.npy")
+# q_table = np.load(f"qtables/{4308}-qtable.npy")
 
 def discretize_state(state):
     # print(state)
@@ -92,7 +88,7 @@ for episode in range(EPISODES):
         except:
             print(state)
         # new_state, reward, done = game_state.frame_step(action, headless=False, desired_fps=10)
-        if episode % SHOW_EVERY == 0:
+        if episode % SHOW_EVERY == 0 and episode > AFTER:
             new_state, reward, done = game_state.frame_step(action, headless=False, desired_fps=30)
             print(new_state, action)
         else:
