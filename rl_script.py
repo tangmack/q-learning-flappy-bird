@@ -9,12 +9,14 @@ t0 = time.time()
 ALPHA = .7 # learning rate
 GAMMA = 0.95 # discount factor
 # EPISODES = 40000
-# EPISODES = 1000 # best survived freames 434
+# EPISODES = 1000 # best survived frames 434
 # EPISODES = 13000
-EPISODES = 30000
+EPISODES = 100_000
+# EPISODES = 10000
 # EPISODES = 260_000
 # SHOW_EVERY = 20000
-SHOW_EVERY = 1000
+SHOW_EVERY = 20_000
+# SHOW_EVERY = 10000
 # SHOW_EVERY = 1
 
 # Exploration settings
@@ -149,30 +151,24 @@ for episode in range(EPISODES):
 
 
                 # idea behind this: if there was an upper pipe death, it was ACTION that caused that, versus no action, if lower pipe death
-                if upper_pipe_death == True:
-                    if last_flap_dealt_with == False and upper_pipe_death == True and action_ == 1: # deal with last flap if we haven't before and action = 1 = flap and we had upper_pipe_death
-                        max_future_q = np.max(q_table[new_discrete_state_])
-                        current_q = q_table[discrete_state_][action_]
-                        new_q = (1 - ALPHA) * current_q + ALPHA * (-1000 + GAMMA * max_future_q) # -1000 reward
-                        q_table[discrete_state_][action_] = new_q
-                        last_flap_dealt_with = True
-                    else: # else, normal case, just give +1 reward
-                        max_future_q = np.max(q_table[new_discrete_state_])
-                        current_q = q_table[discrete_state_][action_]
-                        new_q = (1 - ALPHA) * current_q + ALPHA * (1 + GAMMA * max_future_q) # +1 reward
-                        q_table[discrete_state_][action_] = new_q
+                # if upper_pipe_death == True:
+                if last_flap_dealt_with == False and upper_pipe_death == True and action_ == 1: # deal with last flap if we haven't before and action = 1 = flap and we had upper_pipe_death
+                    max_future_q = np.max(q_table[new_discrete_state_])
+                    current_q = q_table[discrete_state_][action_]
+                    new_q = (1 - ALPHA) * current_q + ALPHA * (-1000 + GAMMA * max_future_q) # -1000 reward
+                    q_table[discrete_state_][action_] = new_q
+                    last_flap_dealt_with = True
+                elif idx == 0 or idx == 1: # punish anything near ceiling, floor, or pipes
+                    max_future_q = np.max(q_table[new_discrete_state_])
+                    current_q = q_table[discrete_state_][action_]
+                    new_q = (1 - ALPHA) * current_q + ALPHA * (-1000 + GAMMA * max_future_q)  # -1000 reward
+                    q_table[discrete_state_][action_] = new_q
+                else: # else, normal case, just give +1 reward
+                    max_future_q = np.max(q_table[new_discrete_state_])
+                    current_q = q_table[discrete_state_][action_]
+                    new_q = (1 - ALPHA) * current_q + ALPHA * (1 + GAMMA * max_future_q) # +1 reward
+                    q_table[discrete_state_][action_] = new_q
 
-                else: # else it was a lower pipe death, or floor death
-                    if idx == 0 or idx == 1: # we don't want to be anywhere near the lower pipes or floor, so punish last two states, even if they are innocent (we shouldn't be anywhere near down there, anyway)
-                        max_future_q = np.max(q_table[new_discrete_state_])
-                        current_q = q_table[discrete_state_][action_]
-                        new_q = (1 - ALPHA) * current_q + ALPHA * (-1000 + GAMMA * max_future_q) # -1000 reward
-                        q_table[discrete_state_][action_] = new_q
-                    else: # else those states were not responsible
-                        max_future_q = np.max(q_table[new_discrete_state_])
-                        current_q = q_table[discrete_state_][action_]
-                        new_q = (1 - ALPHA) * current_q + ALPHA * (1 + GAMMA * max_future_q) # +1 reward
-                        q_table[discrete_state_][action_] = new_q
 
             episode_state_action_new_states = [] # empty out saved states action state tuples
 
@@ -195,7 +191,7 @@ print("best_frames_survived: ", best_frames_survived)
 t1 = time.time()
 print("total time: ", t1-t0) # 9.764827251434326, 20,000 episodes, completely headless, 16000 FPS
 
-plt.plot(frames_survived, linestyle='', marker='.')
+plt.plot(range(len(frames_survived)), frames_survived, linestyle='', marker='.')
 plt.show()
 
 print("min frames survived: ", min(frames_survived) )

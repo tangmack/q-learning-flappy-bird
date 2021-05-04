@@ -151,7 +151,7 @@ class GameState:
         state_out = (delta_x_bird_and_pipe, delta_y_bird_and_pipe, delta_y_next_pipe,self.playery, self.playerVelY)
 
         if headless: # do not render if in headless mode
-            FPSCLOCK.tick(desired_fps)
+            # FPSCLOCK.tick(desired_fps)
             ######print self.upperPipes[0]['y'] + PIPE_HEIGHT - int(BASEY * 0.2)
             return state_out, reward, terminal
 
