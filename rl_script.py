@@ -4,13 +4,15 @@ import matplotlib.pyplot as plt
 import time
 import os
 import glob
+import h5py
 t0 = time.time()
 
 ALPHA = .7 # learning rate
 GAMMA = 0.95 # discount factor
-EPISODES = 100_000
-SHOW_EVERY = 20_000
-# SHOW_EVERY = 1
+EPISODES = 100_000 # 17 minute run time
+# EPISODES = 1000
+# SHOW_EVERY = 20_000
+SHOW_EVERY = 1
 
 # AFTER = 80_000
 AFTER = 0
@@ -24,6 +26,7 @@ epsilon_decay_value = epsilon/(END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 FLAP_EVERY = 17
 
 bin_count = [20, 40, 40, 40, 10] # [20, 20]
+# bin_count = [220, 451, 451, 380, 10] # [20, 20]
 env_state_high = np.array([250, 234, 234, 380, 11])
 env_state_low = np.array([30, -217, -217, 0, -9])
 env_number_of_actions = 2
@@ -33,11 +36,16 @@ bin_size = (env_state_high - env_state_low) / bin_count
 # q_table = np.random.uniform(low= -0.2, high=0.2, size=(bin_count[0],bin_count[1],2))
 # q_table = np.random.uniform(low= -0.1, high=0.0, size=(bin_count + [env_number_of_actions]))
 
-q_table = np.random.uniform(low= -0.2, high=0.0, size=(bin_count + [env_number_of_actions]))
+# q_table = np.random.uniform(low= -0.2, high=0.0, size=(bin_count + [env_number_of_actions]))
 
 # q_table[:,:,1] = np.random.uniform(low=-.5, high=0.0, size=(bin_count[0],bin_count[1])) # de-emphasize flap (avoid hitting ceiling)
 
-# q_table = np.load(f"qtables/{4308}-qtable.npy")
+# q_table = np.load(f"./qtables/{7078}-qtable.npy")
+
+hfr = h5py.File(f"qtables/{6640}-qtable.h5", 'r')
+q_table = np.array(hfr.get('dataset_1'))
+hfr.close()
+
 
 def discretize_state(state):
     # print(state)
@@ -171,7 +179,11 @@ for episode in range(EPISODES):
             print("Total Frames ", str(total_frames), " for episode ", episode)
             if total_frames > best_frames_survived:
                 best_frames_survived = total_frames
-                np.save(f"qtables/{total_frames}-qtable.npy", q_table)
+                if total_frames > 4000: # save hard drive space
+                    # np.save(f"qtables/{total_frames}-qtable.npy", q_table)
+                    hfw = h5py.File(f"qtables/{total_frames}-qtable.h5", 'w')
+                    hfw.create_dataset('dataset_1', data=q_table)
+                    hfw.close()
             break
 
         discrete_state = new_discrete_state
