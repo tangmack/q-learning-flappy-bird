@@ -148,7 +148,7 @@ class GameState:
                 delta_y_next_pipe = self.lowerPipes[1]['y'] - 49 - (self.playery - PLAYER_HEIGHT / 2.)
 
         # state_out = (delta_x_bird_and_pipe, delta_y_bird_and_pipe, delta_y_next_pipe, self.playerVelY)
-        state_out = (delta_x_bird_and_pipe, delta_y_bird_and_pipe, delta_y_next_pipe,self.playery, self.playerVelY)
+        state_out = (delta_x_bird_and_pipe, delta_y_bird_and_pipe, delta_y_next_pipe, self.playerVelY)
 
         if headless: # do not render if in headless mode
             # FPSCLOCK.tick(desired_fps)
