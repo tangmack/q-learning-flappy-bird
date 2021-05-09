@@ -10,8 +10,10 @@ t0 = time.time()
 ALPHA = .7 # learning rate
 GAMMA = 0.95 # discount factor
 EPISODES = 100_000 # 17 minute run time
+# EPISODES = 10_000
 # EPISODES = 1000
 # SHOW_EVERY = 20_000
+# SHOW_EVERY = 1_000
 SHOW_EVERY = 1
 
 # AFTER = 80_000
@@ -23,7 +25,7 @@ START_EPSILON_DECAYING = 1
 END_EPSILON_DECAYING = EPISODES//2
 epsilon_decay_value = epsilon/(END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
-FLAP_EVERY = 17
+# FLAP_EVERY = 17
 
 bin_count = [20, 40, 40, 40, 10] # [20, 20]
 # bin_count = [220, 451, 451, 380, 10] # [20, 20]
@@ -179,11 +181,11 @@ for episode in range(EPISODES):
             print("Total Frames ", str(total_frames), " for episode ", episode)
             if total_frames > best_frames_survived:
                 best_frames_survived = total_frames
-                if total_frames > 4000: # save hard drive space
-                    # np.save(f"qtables/{total_frames}-qtable.npy", q_table)
-                    hfw = h5py.File(f"qtables/{total_frames}-qtable.h5", 'w')
-                    hfw.create_dataset('dataset_1', data=q_table)
-                    hfw.close()
+                # if total_frames > 4000: # save hard drive space
+                #     # np.save(f"qtables/{total_frames}-qtable.npy", q_table)
+                #     hfw = h5py.File(f"qtables/{total_frames}-qtable.h5", 'w')
+                #     hfw.create_dataset('dataset_1', data=q_table)
+                #     hfw.close()
             break
 
         discrete_state = new_discrete_state
@@ -201,6 +203,8 @@ print("total time: ", t1-t0) # 9.764827251434326, 20,000 episodes, completely he
 
 plt.plot(range(len(frames_survived)), frames_survived, linestyle='', marker='.')
 plt.show()
+
+print("total frames survived = ", sum(frames_survived))
 
 print("min frames survived: ", min(frames_survived) )
 print("average frames survived: ", sum(frames_survived)/len(frames_survived) )
